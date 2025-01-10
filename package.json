@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "cd src && node index.js"
+    "start": "cd src && node index.js",
+    "mysql:start": "docker run -d --rm -p 3306:3306 --name cs329-mysql -e MYSQL_ROOT_PASSWORD=password123 mysql:latest"
   },
   "license": "MIT",
   "dependencies": {
