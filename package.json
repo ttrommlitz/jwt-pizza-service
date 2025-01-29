@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cd src && node index.js",
+    "test": "jest",
     "mysql:start": "docker run -d -p 3306:3306 --name cs329-mysql -e MYSQL_ROOT_PASSWORD=password123 mysql:8.0",
     "mysql:stop": "docker stop cs329-mysql 2>/dev/null",
     "mysql:resume": "docker start cs329-mysql"
@@ -17,6 +18,8 @@
     "mysql2": "^3.9.7"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.4.0",
+    "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "supertest": "^7.0.0"
   }
