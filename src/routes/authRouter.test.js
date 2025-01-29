@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../service');
 const { createDiner } = require('../../tests/helpers/userHelpers')
+const { expectValidJwt } = require('../../tests/helpers/miscHelpers')
 
 it('registers a user successfully', async () => {
   const registerTestUser = { name: 'test diner', email: 'test@jwt.com', password: 'test' }
@@ -72,7 +73,3 @@ it('logs out successfully', async () => {
   expect(logoutRes.status).toBe(200)
   expect(logoutRes.body.message).toBe('logout successful')
 })
-
-function expectValidJwt(potentialJwt) {
-  expect(potentialJwt).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
-}
