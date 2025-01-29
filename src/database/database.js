@@ -25,16 +25,6 @@ class DB {
     }
   }
 
-  async dropDatabase(databaseName) {
-    const connection = await this.getConnection()
-
-    try {
-      await this.query(connection, `DROP DATABASE ${databaseName}`)
-    } finally {
-      connection.end()
-    }
-  }
-
   async getMenu() {
     const connection = await this.getConnection();
     try {
