@@ -79,11 +79,11 @@ it('returns a user\'s franchises', async () => {
 })
 
 it('lists all franchises successfully', async () => {
-  const franchise1 = await createFranchise()
-  const franchise2 = await createFranchise()
-  const franchise3 = await createFranchise()
+  await createFranchise()
+  await createFranchise()
+  await createFranchise()
 
-  const { user, token } = await createDiner()
+  const { token } = await createDiner()
   expectValidJwt(token)
 
   const listFranchisesRes = await request(app)
@@ -118,7 +118,7 @@ it('allows admin to delete a franchise successfully', async () => {
 })
 
 it('does not allow a non-admin to delete a franchise', async () => {
-  const { user, token } = await createDiner()
+  const { token } = await createDiner()
   expectValidJwt(token)
 
   const createdFranchise = await createFranchise()
@@ -152,7 +152,7 @@ it('allows admin to create a store successfully', async () => {
 })
 
 it('does not allow a non-admin to create a store', async () => {
-  const { user, token } = await createDiner()
+  const { token } = await createDiner()
   expectValidJwt(token)
 
   const createdFranchise = await createFranchise()
@@ -186,7 +186,7 @@ it('allows admin to delete a store successfully', async () => {
   expect(deleteStoreRes.body.message).toBe('store deleted')
 })
 it('does not allow a non-admin to delete a store', async () => {
-  const { user, token } = await createDiner()
+  const { token } = await createDiner()
   expectValidJwt(token)
 
   const createdStore = await createStore()

@@ -7,7 +7,7 @@ const { createStore } = require('../../tests/helpers/franchiseHelpers');
 const { faker } = require('@faker-js/faker/.');
 
 it('allows admin to add a menu item', async () => {
-  const { user, token } = await createAdminUser()
+  const { token } = await createAdminUser()
   expectValidJwt(token)
 
   const addMenuItemRequestBody = {
@@ -26,12 +26,13 @@ it('allows admin to add a menu item', async () => {
   expect(addMenuItemRes.body).toBeInstanceOf(Array)
   expect(addMenuItemRes.body.length).toBe(1)
 
+  /* eslint-disable-next-line no-unused-vars */
   const { id, ...menuItem } = addMenuItemRes.body[0]
   expect(menuItem).toMatchObject(addMenuItemRequestBody)
 })
 
 it('does not allow a non-admin to add a menu item', async () => {
-  const { user, token } = await createDiner()
+  const { token } = await createDiner()
   expectValidJwt(token)
 
   const addMenuItemRequestBody = {
@@ -51,9 +52,9 @@ it('does not allow a non-admin to add a menu item', async () => {
 })
 
 it('returns the entire menu', async () => {
-  const item1 = await createMenuItem()
-  const item2 = await createMenuItem()
-  const item3 = await createMenuItem()
+  await createMenuItem()
+  await createMenuItem()
+  await createMenuItem()
 
   const getMenuRes = await request(app)
     .get('/api/order/menu')
@@ -65,7 +66,7 @@ it('returns the entire menu', async () => {
 
 it('allows a user to create an order', async () => {
   // mock the API call to PizzaFactory
-  global.fetch = jest.fn((url) => {
+  global.fetch = jest.fn(() => {
     return Promise.resolve({
       json: () => {
         return Promise.resolve({ reportUrl: 'report@jwtpizza.com', jwt: faker.internet.jwt() })
@@ -74,7 +75,7 @@ it('allows a user to create an order', async () => {
     })
   })
 
-  const { user, token } = await createDiner()
+  const { token } = await createDiner()
   expectValidJwt(token)
 
   const item1 = await createMenuItem()
@@ -100,7 +101,7 @@ it('allows a user to create an order', async () => {
 
 it('fails to place an order if the pizza factory is down', async () => {
   // mock the API call to PizzaFactory
-  global.fetch = jest.fn((url) => {
+  global.fetch = jest.fn(() => {
     return Promise.resolve({
       json: () => {
         return Promise.resolve({ reportUrl: 'report@jwtpizza.com', jwt: null })
@@ -109,7 +110,7 @@ it('fails to place an order if the pizza factory is down', async () => {
     })
   })
 
-  const { user, token } = await createDiner()
+  const { token } = await createDiner()
   expectValidJwt(token)
 
   const item1 = await createMenuItem()

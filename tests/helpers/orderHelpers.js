@@ -14,7 +14,7 @@ exports.createMenuItem = async () => {
 
 exports.createOrder = async (user, store) => {
   const menuItems = await Promise.all(
-    Array.from({ length: 5}).map(async (_)=> {
+    Array.from({ length: 5}).map(async () => {
       const item = await this.createMenuItem()
 
       return {

@@ -63,7 +63,7 @@ it('allows a user to update their information', async () => {
 })
 
 it('logs out successfully', async () => {
-  const { user, token } = await createDiner()
+  const { token } = await createDiner()
   expectValidJwt(token)
 
   const logoutRes = await request(app)

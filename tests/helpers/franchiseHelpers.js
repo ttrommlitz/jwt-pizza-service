@@ -1,11 +1,11 @@
 const { faker } = require('@faker-js/faker/.')
-const { DB, Role} = require('../../src/database/database')
+const { DB } = require('../../src/database/database')
 const { createAdminUser } = require('./userHelpers')
 
 exports.createFranchise = async (adminEmail) => {
   // if no admin for the franchise is provided, create one
   if (!adminEmail) {
-    const { user, token } = await createAdminUser()
+    const { user } = await createAdminUser()
     adminEmail = user.email
   }
   const franchise = {
