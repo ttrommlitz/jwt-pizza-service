@@ -11,6 +11,5 @@
   },
   "setupFilesAfterEnv": [
     "./tests/everyTestSetup.js"
-  ],
-  "globalTeardown": "./tests/globalTeardown.js"
+  ]
 }
