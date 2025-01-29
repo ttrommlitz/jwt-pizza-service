@@ -9,6 +9,32 @@ class DB {
     this.initialized = this.initializeDatabase();
   }
 
+  async clearDatabase() {
+    const connection = await this.getConnection();
+
+    try {
+      const tableNames = ['auth', 'user', 'menu', 'franchise', 'store', 'userRole', 'dinerOrder', 'orderItem']
+
+      await this.query(connection, 'SET FOREIGN_KEY_CHECKS=0')
+      for (const table of tableNames) {
+        await this.query(connection, `DELETE FROM ${table}`)
+      }
+      await this.query(connection, 'SET FOREIGN_KEY_CHECKS=1')
+    } finally {
+      connection.end()
+    }
+  }
+
+  async dropDatabase(databaseName) {
+    const connection = await this.getConnection()
+
+    try {
+      await this.query(connection, `DROP DATABASE ${databaseName}`)
+    } finally {
+      connection.end()
+    }
+  }
+
   async getMenu() {
     const connection = await this.getConnection();
     try {
