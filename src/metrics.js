@@ -45,6 +45,20 @@ function requestTracker() {
   }
 }
 
+function latencyTracker() {
+  return (req, res, next) => {
+    const startTime = Date.now();
+    
+    res.on('finish', () => {
+      const endTime = Date.now();
+      const latency = endTime - startTime;
+      updateEndpointLatency(latency);
+    });
+    
+    next();
+  };
+}
+
 function incrementAuthAttempts(success) {
   if (success) {
     metrics.authAttempts.success += 1;
@@ -78,6 +92,14 @@ function increasePizzaRevenue(amount) {
   metrics.pizzas.revenue += amount;
 }
 
+function updatePizzaCreationLatency(latency) {
+  metrics.latency.pizzaCreationLatency = latency;
+}
+
+function updateEndpointLatency(latency) {
+  metrics.latency.endpointLatency = latency;
+}
+
 // This will periodically send metrics to Grafana
 const timer = setInterval(() => {
   Object.keys(metrics.requestsByMethod).forEach((method) => {
@@ -95,13 +117,15 @@ const timer = setInterval(() => {
 
   sendMetricToGrafana('memory_usage', getMemoryUsagePercentage(), { type: 'memory_usage' });
 
-  console.log("PIZZAS SOLD", metrics.pizzas)
-  sendMetricToGrafana('pizzas_sold', metrics.pizzas.sold)
+  sendMetricToGrafana('pizzas_sold', metrics.pizzas.sold);
 
-  sendMetricToGrafana('pizza_creation_failures', metrics.pizzas.creationFailures)
+  sendMetricToGrafana('pizza_creation_failures', metrics.pizzas.creationFailures);
 
-  sendMetricToGrafana('pizza_revenue', metrics.pizzas.revenue)
+  sendMetricToGrafana('pizza_revenue', metrics.pizzas.revenue);
 
+  sendMetricToGrafana('pizza_creation_latency', metrics.latency.pizzaCreationLatency, { type: 'factory_request' });
+
+  sendMetricToGrafana('endpoint_latency', metrics.latency.endpointLatency, { type: 'api_request' });
 
 }, 10000);
 
@@ -162,10 +186,13 @@ function sendMetricToGrafana(metricName, metricValue, attributes) {
 
 module.exports = { 
   requestTracker,
+  latencyTracker,
   incrementActiveUsers,
   decrementActiveUsers,
   incrementAuthAttempts,
   incrementPizzasSold,
   incrementPizzaCreationFailures,
-  increasePizzaRevenue
+  increasePizzaRevenue,
+  updatePizzaCreationLatency,
+  updateEndpointLatency
 };

@@ -4,7 +4,7 @@ const orderRouter = require('./routes/orderRouter.js');
 const franchiseRouter = require('./routes/franchiseRouter.js');
 const version = require('./version.json');
 const config = require('./config.js');
-const { requestTracker } = require("./metrics.js")
+const { requestTracker, latencyTracker } = require("./metrics.js")
 
 const app = express();
 app.use(express.json());
@@ -19,6 +19,7 @@ app.use((req, res, next) => {
 
 // Collect requestByMethod metrics
 app.use(requestTracker())
+app.use(latencyTracker())
 
 const apiRouter = express.Router();
 app.use('/api', apiRouter);
