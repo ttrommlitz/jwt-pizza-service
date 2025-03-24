@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
+const { incrementActiveUsers, decrementActiveUsers, incrementAuthAttempts } = require('../metrics.js');
 
 const authRouter = express.Router();
 
@@ -47,9 +48,11 @@ async function setAuthUser(req, res, next) {
         // Check the database to make sure the token is valid.
         req.user = jwt.verify(token, config.jwtSecret);
         req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
+        incrementAuthAttempts(true);
       }
     } catch {
       req.user = null;
+      incrementAuthAttempts(false);
     }
   }
   next();
@@ -58,6 +61,7 @@ async function setAuthUser(req, res, next) {
 // Authenticate token
 authRouter.authenticateToken = (req, res, next) => {
   if (!req.user) {
+    incrementAuthAttempts(false);
     return res.status(401).send({ message: 'unauthorized' });
   }
   next();
@@ -69,6 +73,7 @@ authRouter.post(
   asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
+      incrementAuthAttempts(false);
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
@@ -107,6 +112,7 @@ authRouter.put(
     const userId = Number(req.params.userId);
     const user = req.user;
     if (user.id !== userId && !user.isRole(Role.Admin)) {
+      incrementAuthAttempts(false);
       return res.status(403).json({ message: 'unauthorized' });
     }
 
@@ -118,6 +124,7 @@ authRouter.put(
 async function setAuth(user) {
   const token = jwt.sign(user, config.jwtSecret);
   await DB.loginUser(user.id, token);
+  incrementActiveUsers(); 
   return token;
 }
 
@@ -125,6 +132,7 @@ async function clearAuth(req) {
   const token = readAuthToken(req);
   if (token) {
     await DB.logoutUser(token);
+    decrementActiveUsers();
   }
 }
 

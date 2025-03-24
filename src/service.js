@@ -17,7 +17,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Collect metrics
+// Collect requestByMethod metrics
 app.use(requestTracker())
 
 const apiRouter = express.Router();

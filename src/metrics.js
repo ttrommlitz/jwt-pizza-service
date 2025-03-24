@@ -9,7 +9,10 @@ const metrics = {
     DELETE: 0
   },
   activeUsers: 0,
-  authAttempts: 0,
+  authAttempts: {
+    success: 0,
+    failure: 0
+  },
   system: {
     memoryPercentage: 0,
     cpuPercentage: 0
@@ -25,6 +28,15 @@ const metrics = {
   }
 }
 
+// helpers
+function incrementActiveUsers() {
+  metrics.activeUsers += 1;
+}
+
+function decrementActiveUsers() {
+  metrics.activeUsers -= 1;
+}
+
 function requestTracker() {
   return (req, res, next) => {
     metrics.requestsByMethod[req.method] += 1
@@ -32,10 +44,25 @@ function requestTracker() {
   }
 }
 
+function incrementAuthAttempts(success) {
+  if (success) {
+    metrics.authAttempts.success += 1;
+  } else {
+    metrics.authAttempts.failure += 1;
+  }
+}
+
 // This will periodically send metrics to Grafana
 const timer = setInterval(() => {
   Object.keys(metrics.requestsByMethod).forEach((method) => {
     sendMetricToGrafana('methods', metrics.requestsByMethod[method], { method });
+  });
+  
+  // Send active users metric
+  sendMetricToGrafana('active_users', metrics.activeUsers, { type: 'concurrent_users' });
+
+  Object.keys(metrics.authAttempts).forEach((attempt) => {
+    sendMetricToGrafana('auth_attempts', metrics.authAttempts[attempt], { type: attempt });
   });
 }, 10000);
 
@@ -94,4 +121,9 @@ function sendMetricToGrafana(metricName, metricValue, attributes) {
     });
 }
 
-module.exports = { requestTracker };
+module.exports = { 
+  requestTracker,
+  incrementActiveUsers,
+  decrementActiveUsers,
+  incrementAuthAttempts
+};
