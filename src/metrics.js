@@ -1,5 +1,6 @@
 const { request } = require('express');
 const config = require('./config');
+const os = require('os');
 
 const metrics = {
   requestsByMethod: {
@@ -52,6 +53,31 @@ function incrementAuthAttempts(success) {
   }
 }
 
+function getCpuUsagePercentage() {
+  const cpuUsage = os.loadavg()[0] / os.cpus().length;
+  return cpuUsage.toFixed(2) * 100;
+}
+
+function getMemoryUsagePercentage() {
+  const totalMemory = os.totalmem();
+  const freeMemory = os.freemem();
+  const usedMemory = totalMemory - freeMemory;
+  const memoryUsage = (usedMemory / totalMemory) * 100;
+  return memoryUsage.toFixed(2);
+}
+
+function incrementPizzasSold() {
+  metrics.pizzas.sold += 1;
+}
+
+function incrementPizzaCreationFailures() {
+  metrics.pizzas.creationFailures += 1;
+}
+
+function increasePizzaRevenue(amount) {
+  metrics.pizzas.revenue += amount;
+}
+
 // This will periodically send metrics to Grafana
 const timer = setInterval(() => {
   Object.keys(metrics.requestsByMethod).forEach((method) => {
@@ -64,6 +90,19 @@ const timer = setInterval(() => {
   Object.keys(metrics.authAttempts).forEach((attempt) => {
     sendMetricToGrafana('auth_attempts', metrics.authAttempts[attempt], { type: attempt });
   });
+
+  sendMetricToGrafana('cpu_usage', getCpuUsagePercentage(), { type: 'cpu_usage' });
+
+  sendMetricToGrafana('memory_usage', getMemoryUsagePercentage(), { type: 'memory_usage' });
+
+  console.log("PIZZAS SOLD", metrics.pizzas)
+  sendMetricToGrafana('pizzas_sold', metrics.pizzas.sold)
+
+  sendMetricToGrafana('pizza_creation_failures', metrics.pizzas.creationFailures)
+
+  sendMetricToGrafana('pizza_revenue', metrics.pizzas.revenue)
+
+
 }, 10000);
 
 function sendMetricToGrafana(metricName, metricValue, attributes) {
@@ -81,7 +120,7 @@ function sendMetricToGrafana(metricName, metricValue, attributes) {
                 sum: {
                   dataPoints: [
                     {
-                      asInt: metricValue,
+                      asDouble: metricValue,
                       timeUnixNano: Date.now() * 1000000,
                       attributes: [],
                     },
@@ -125,5 +164,8 @@ module.exports = {
   requestTracker,
   incrementActiveUsers,
   decrementActiveUsers,
-  incrementAuthAttempts
+  incrementAuthAttempts,
+  incrementPizzasSold,
+  incrementPizzaCreationFailures,
+  increasePizzaRevenue
 };
