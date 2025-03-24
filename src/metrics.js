@@ -1,4 +1,3 @@
-const { request } = require('express');
 const config = require('./config');
 const os = require('os');
 
@@ -101,7 +100,7 @@ function updateEndpointLatency(latency) {
 }
 
 // This will periodically send metrics to Grafana
-const timer = setInterval(() => {
+setInterval(() => {
   Object.keys(metrics.requestsByMethod).forEach((method) => {
     sendMetricToGrafana('methods', metrics.requestsByMethod[method], { method });
   });
