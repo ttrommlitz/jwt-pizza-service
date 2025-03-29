@@ -100,33 +100,35 @@ function updateEndpointLatency(latency) {
 }
 
 // This will periodically send metrics to Grafana
-setInterval(() => {
-  Object.keys(metrics.requestsByMethod).forEach((method) => {
-    sendMetricToGrafana('methods', metrics.requestsByMethod[method], { method });
-  });
+if (process.env.NODE_ENV !== "test") {
+  setInterval(() => {
+    Object.keys(metrics.requestsByMethod).forEach((method) => {
+      sendMetricToGrafana('methods', metrics.requestsByMethod[method], { method });
+    });
+    
+    // Send active users metric
+    sendMetricToGrafana('active_users', metrics.activeUsers, { type: 'concurrent_users' });
   
-  // Send active users metric
-  sendMetricToGrafana('active_users', metrics.activeUsers, { type: 'concurrent_users' });
-
-  Object.keys(metrics.authAttempts).forEach((attempt) => {
-    sendMetricToGrafana('auth_attempts', metrics.authAttempts[attempt], { type: attempt });
-  });
-
-  sendMetricToGrafana('cpu_usage', getCpuUsagePercentage(), { type: 'cpu_usage' });
-
-  sendMetricToGrafana('memory_usage', getMemoryUsagePercentage(), { type: 'memory_usage' });
-
-  sendMetricToGrafana('pizzas_sold', metrics.pizzas.sold);
-
-  sendMetricToGrafana('pizza_creation_failures', metrics.pizzas.creationFailures);
-
-  sendMetricToGrafana('pizza_revenue', metrics.pizzas.revenue);
-
-  sendMetricToGrafana('pizza_creation_latency', metrics.latency.pizzaCreationLatency, { type: 'factory_request' });
-
-  sendMetricToGrafana('endpoint_latency', metrics.latency.endpointLatency, { type: 'api_request' });
-
-}, 10000);
+    Object.keys(metrics.authAttempts).forEach((attempt) => {
+      sendMetricToGrafana('auth_attempts', metrics.authAttempts[attempt], { type: attempt });
+    });
+  
+    sendMetricToGrafana('cpu_usage', getCpuUsagePercentage(), { type: 'cpu_usage' });
+  
+    sendMetricToGrafana('memory_usage', getMemoryUsagePercentage(), { type: 'memory_usage' });
+  
+    sendMetricToGrafana('pizzas_sold', metrics.pizzas.sold);
+  
+    sendMetricToGrafana('pizza_creation_failures', metrics.pizzas.creationFailures);
+  
+    sendMetricToGrafana('pizza_revenue', metrics.pizzas.revenue);
+  
+    sendMetricToGrafana('pizza_creation_latency', metrics.latency.pizzaCreationLatency, { type: 'factory_request' });
+  
+    sendMetricToGrafana('endpoint_latency', metrics.latency.endpointLatency, { type: 'api_request' });
+  
+  }, 10000);
+}
 
 function sendMetricToGrafana(metricName, metricValue, attributes) {
   attributes = { ...attributes, source: config.source };

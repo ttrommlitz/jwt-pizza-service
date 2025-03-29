@@ -11,5 +11,9 @@
   },
   "setupFilesAfterEnv": [
     "./tests/everyTestSetup.js"
+  ],
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "/dist/"
   ]
 }

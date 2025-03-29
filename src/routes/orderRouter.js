@@ -83,7 +83,9 @@ orderRouter.post(
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
     const orderInfo = { diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order };
-    logger.factoryLogger(orderInfo);
+    if (process.env.NODE_ENV !== "test") {
+      logger.factoryLogger(orderInfo);
+    }
     
     const startTime = Date.now();
     const r = await fetch(`${config.factory.url}/api/order`, {

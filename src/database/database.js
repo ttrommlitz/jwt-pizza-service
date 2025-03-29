@@ -306,7 +306,9 @@ class DB {
   }
 
   async query(connection, sql, params) {
-    logger.dbLogger(sql);
+    if (process.env.NODE_ENV !== "test") {
+      logger.dbLogger(sql);
+    }
     const [results] = await connection.execute(sql, params);
     return results;
   }

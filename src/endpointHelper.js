@@ -5,7 +5,9 @@ const logger = new Logger(config)
 class StatusCodeError extends Error {
   constructor(message, statusCode) {
     super(message);
-    logger.unhandledErrorLogger(this)
+    if (process.env.NODE_ENV !== "test") {
+      logger.unhandledErrorLogger(this)
+    }
     this.statusCode = statusCode;
   }
 }
