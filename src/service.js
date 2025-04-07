@@ -11,7 +11,6 @@ const logger = new Logger(config)
 const app = express();
 app.use(express.json());
 app.use(setAuthUser);
-console.log("NODE_ENV: ", process.env.NODE_ENV)
 if (process.env.NODE_ENV !== "test")  {
   app.use(logger.httpLogger)
 }
